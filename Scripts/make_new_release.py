@@ -29,12 +29,12 @@ import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
-from distutils.version import LooseVersion
 from pprint import pprint
 from shutil import rmtree
 from time import strftime
 
 import certifi
+from packaging.version import parse
 
 
 class GitHubAPIError(BaseException):
@@ -199,7 +199,7 @@ def main():
     except BaseException:
         sys.exit("Couldn't determine current autopkg version!")
     print(f"** Current AutoPkg version: {current_version}")
-    if LooseVersion(next_version) <= LooseVersion(current_version):
+    if parse(next_version) <= parse(current_version):
         sys.exit(
             f"Next version (gave {next_version}) must be greater than current version "
             f"{current_version}!"
