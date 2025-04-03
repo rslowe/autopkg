@@ -26,12 +26,12 @@ import subprocess
 import sys
 import traceback
 from copy import deepcopy
-from distutils.version import LooseVersion
-from typing import IO, Any, Dict, List, Optional, Union
+from typing import Any, Dict, IO, List, Optional, Union
 
 import appdirs
 import pkg_resources
 import yaml
+from packaging.version import parse, Version
 
 # Type for methods that accept either a filesystem path or a file-like object.
 FileOrPath = Union[IO, str, bytes, int]
@@ -415,9 +415,9 @@ def get_autopkg_version():
 
 
 def version_equal_or_greater(this, that):
-    """Compares two LooseVersion objects. Returns True if this is
-    equal to or greater than that"""
-    return LooseVersion(this) >= LooseVersion(that)
+    """Compares two Version objects as LooseVersion.
+    Returns True if this is equal to or greater than that"""
+    return parse(this) >= parse(that)
 
 
 def update_data(a_dict, key, value):
@@ -893,8 +893,8 @@ def _cmp(x, y):
     return (x > y) - (x < y)
 
 
-class APLooseVersion(LooseVersion):
-    """Subclass of distutils.version.LooseVersion to fix issues under Python 3"""
+class APLooseVersion(Version):
+    """Subclass of packaging.version.Version to fix issues under Python 3"""
 
     def _pad(self, version_list, max_length):
         """Pad a version list by adding extra 0 components to the end if needed."""
@@ -905,8 +905,8 @@ class APLooseVersion(LooseVersion):
         return cmp_list
 
     def _compare(self, other):
-        """Complete comparison mechanism since LooseVersion's is broken in Python 3."""
-        if not isinstance(other, (LooseVersion, APLooseVersion)):
+        """Complete comparison mechanism since Version's is stricter than what is necessary."""
+        if not isinstance(other, (Version, APLooseVersion)):
             other = APLooseVersion(other)
         max_length = max(len(self.version), len(other.version))
         self_cmp_version = self._pad(self.version, max_length)
